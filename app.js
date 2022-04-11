@@ -5,7 +5,6 @@ const server = new Server();
 
 
 
-server.listen('Escuchando en el puerto:', process.env.PORT);
-
-
-
+server.listen(process.env.PORT, () => {
+      console.log('Escuchando en el puerto:', process.env.PORT);
+})
