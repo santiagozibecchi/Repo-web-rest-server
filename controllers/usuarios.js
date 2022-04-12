@@ -1,4 +1,9 @@
-const { response, request } = require('express')
+const { response, request } = require('express');
+const bcrypt = require('bcryptjs');
+// Esto me permitira crear instancias de mi modelo:
+// La mayuscula es una convencion
+const Usuario = require('../models/usuario');
+const { validationResult } = require('express-validator');
 
 usuariosGet = (req, res = response) => {
 
@@ -24,14 +29,36 @@ usuariosPut = (req, res = response) => {
       });
 };
 
-usuariosPost = (req, res = response) => {
+usuariosPost = async(req, res = response) => {
 
-      const {nombre, edad} = req.body;
+      const errors = validationResult(req);
+      // Si hay errores:
+      if (!errors.isEmpty()) {
+            return res.status(400).json(errors);
+      }
 
-      res.status(201).json({
-            msg: 'post API - controlador',
-            nombre,
-            edad,
+
+      const {nombre, correo, password, rol} = req.body;
+      const usuario = new Usuario({nombre, correo, password, rol});
+
+      // Verificar si el correo existe:
+      const existeEmail = await Usuario.findOne({correo});
+      if (existeEmail) {
+            return res.status(400).json({
+                  msg: 'Este correo ya esta registrado'
+            }) 
+      }
+
+      // Encriptar la contraseña:
+      const salt =  bcrypt.genSaltSync(10);
+      usuario.password =  bcrypt.hashSync(password, salt);
+
+      //Guardar en base de datos
+      // Para grabar el registro:
+      await usuario.save();
+
+      res.json({
+            usuario
       });
 };
 
