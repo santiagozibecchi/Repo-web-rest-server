@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 // La mayuscula es una convencion
 const Usuario = require('../models/usuario');
 
-usuariosGet = async(req, res = response) => {
+usuariosGet = async (req, res = response) => {
 
       // Para el limite desestructuro para obtener lo que viene en el body.query
       const { limite = 5, desde = 0 } = req.query;
@@ -12,17 +12,17 @@ usuariosGet = async(req, res = response) => {
       const query = { estado: true };
 
       // const {q, nombre, apikey, page = 1} = req.query;
-/*
-      const usuarios = await Usuario.find(query)
-            .skip(Number(desde))
-            .limit(Number(limite));
-
-      // Cantidad de registros:
-      const total = await Usuario.countDocuments(query);
-*/
+      /*
+            const usuarios = await Usuario.find(query)
+                  .skip(Number(desde))
+                  .limit(Number(limite));
+      
+            // Cantidad de registros:
+            const total = await Usuario.countDocuments(query);
+      */
 
       // Este codigo agiliza mucho la velocidad de respuesta ya que resuelve cada promesa al mismo tiempo
-      const [ total, usuarios ] = await Promise.all([
+      const [total, usuarios] = await Promise.all([
             Usuario.countDocuments(query),
             Usuario.find(query)
                   .skip(Number(desde))
@@ -35,12 +35,12 @@ usuariosGet = async(req, res = response) => {
       });
 };
 
-usuariosPut = async(req, res = response) => {
+usuariosPut = async (req, res = response) => {
 
       // const id = req.params.id;
-      const {id} = req.params;
+      const { id } = req.params;
       // Desestructuro todo lo que no necesito que se grabe:
-      const { _id ,password, google, correo, ...resto} = req.body; 
+      const { _id, password, google, correo, ...resto } = req.body;
 
       // Validar contra base de datos
       if (password) {
@@ -55,18 +55,18 @@ usuariosPut = async(req, res = response) => {
       res.json(usuarioDB);
 };
 
-usuariosPost = async(req, res = response) => {
+usuariosPost = async (req, res = response) => {
 
 
-      const {nombre, correo, password, rol} = req.body;
-      const usuario = new Usuario({nombre, correo, password, rol});
+      const { nombre, correo, password, rol } = req.body;
+      const usuario = new Usuario({ nombre, correo, password, rol });
 
       // Verificar si el correo existe:
       // Se encuentra en db-validator
 
       // Encriptar la contraseña:
-      const salt =  bcrypt.genSaltSync(10);
-      usuario.password =  bcrypt.hashSync(password, salt);
+      const salt = bcrypt.genSaltSync(10);
+      usuario.password = bcrypt.hashSync(password, salt);
 
       //Guardar en base de datos
       // Para grabar el registro:
@@ -77,15 +77,20 @@ usuariosPost = async(req, res = response) => {
       });
 };
 
-usuariosDelete = async(req, res = response) => {
+usuariosDelete = async (req, res = response) => {
 
       const { id } = req.params;
+
+      // Se  paso por referencia de validar-jwt: ejemplo:
+      // const uid = req.uid;
 
       // Borrando fisicamente de la DB
       // const usuario = await Usuario.findByIdAndDelete(id);
 
-      const usuario = await Usuario.findByIdAndUpdate(id, {estado: false});
+      const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
+      // const usuarioAutenticado = req.usuario;
 
+      // res.json({usuario, usuarioAutenticado});
       res.json(usuario);
 };
 

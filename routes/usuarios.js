@@ -2,10 +2,26 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-const { esRolValido, emailExiste, existeUsuarioPorId } = require('../helpers/db-validators');
-const { validarCampos } = require('../middlewares/validar-campos');
+// const { validarCampos } = require('../middlewares/validar-campos');
+// const { validarJWT } = require('../middlewares/validar-jwt');
+// const { esAdminRole, tieneRol } = require('../middlewares/validar-roles');
 
-const { usuariosPut, usuariosGet, usuariosPost, usuariosDelete, usuariosPatch } = require('../controllers/usuarios');
+const {
+      validarCampos,
+      validarJWT,
+      esAdiminRole,
+      tieneRol
+} = require('../middlewares');
+
+const { esRolValido, 
+      emailExiste, 
+      existeUsuarioPorId } = require('../helpers/db-validators');
+
+const { usuariosPut, 
+      usuariosGet, 
+      usuariosPost, 
+      usuariosDelete, 
+      usuariosPatch } = require('../controllers/usuarios');
 
 const router = Router();
 
@@ -20,7 +36,7 @@ router.put('/:id', [
       check('rol').custom(esRolValido),
 
       validarCampos
-] ,usuariosPut );
+], usuariosPut);
 
 // Para definir un middleware: se coloca en el segundo argumento un arreglo
 router.post('/', [
@@ -32,7 +48,7 @@ router.post('/', [
       // isEmail: tiene que ser un correo
       check('correo', 'El correo no es valido').isEmail(),
       check('correo').custom(emailExiste),
-      
+
       check('password', 'El password debe ser de mas de 6 letras').isLength({ min: 6 }),
 
       // check('rol', 'No es un rol permitido').isIn('ADMIN_ROL', 'USER_ROL'),
@@ -40,12 +56,19 @@ router.post('/', [
 
       // Custom recibe el valor de lo que estoy evaluando:
       // rol recibe un valor por defecto en caso de que no venga porque si no viniera va a ser un string vacio y va a chocar con la validacion siguiente..
-      check('rol').custom( esRolValido ),
+      check('rol').custom(esRolValido),
       validarCampos
 
-],usuariosPost);
+], usuariosPost);
 
-router.delete('/:id', usuariosDelete);
+router.delete('/:id', [
+      validarJWT,
+      // esAdminRole, Esto fuerza a que el usuario sea admin rol
+      tieneRol(' ADMIN_ROL', 'VENTAS_ROL'),
+      check('id', 'No es un ID valido').isMongoId(),
+      check('id').custom(existeUsuarioPorId),
+      validarCampos
+], usuariosDelete);
 
 
 router.patch('/', usuariosPatch);
