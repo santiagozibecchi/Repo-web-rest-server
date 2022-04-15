@@ -6,7 +6,7 @@ const Usuario = require('../models/usuario');
 
 // El token de acceso se acostumbra a que vaya en los headers
 
-const validarJWT = async(req=request, res = response, next) => {
+const validarJWT = async (req = request, res = response, next) => {
 
       // Para leer los headers tengo que leer los request
       const token = req.header('x-token');
@@ -18,8 +18,8 @@ const validarJWT = async(req=request, res = response, next) => {
       }
 
       try {
-            
-            const {uid} = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+
+            const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 
             // Leer el usuario que corresponde al uid:
             const usuario = await Usuario.findById(uid);
@@ -32,7 +32,7 @@ const validarJWT = async(req=request, res = response, next) => {
             }
 
             // Verificar si el uid tiene estado true:
-            if ( !usuario.estado) {
+            if (!usuario.estado) {
                   return res.status(401).json({
                         msg: 'Token no valido - Usuario con estado: false'
                   })
@@ -51,7 +51,7 @@ const validarJWT = async(req=request, res = response, next) => {
             res.status(401).json({
                   msg: 'Token no valido'
             });
-            
+
       }
 
       console.log(token);
