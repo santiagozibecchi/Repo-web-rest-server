@@ -32,7 +32,7 @@
                   // console.log('id_token', response.credential);
                   const body = { id_token: response.credential }
 
-                  fetch('https://restserver-cursonode-fher.herokuapp.com', {
+                  fetch('https://restserver-cursonode-fher.herokuapp.com/api/auth/google', {
                         // Por defecto el metodo fetch regresa una peticion GET,
                         // por esto configuramos como sigue:
                         method: 'POST',
