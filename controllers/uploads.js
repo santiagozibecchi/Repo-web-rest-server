@@ -104,7 +104,6 @@ const mostrarImagen = async(req, res = response) => {
 
       const { id, coleccion } = req.params;
 
-
       let modelo;
 
       switch (coleccion) {
@@ -143,11 +142,8 @@ const mostrarImagen = async(req, res = response) => {
             }
       }
 
-      res.json({
-            msg: ' Falta place holder'
-      })
-
-
+      const imagenNull = path.join( __dirname, '../assets/no-image.jpg')
+      res.sendFile(imagenNull);
 }
 
 
